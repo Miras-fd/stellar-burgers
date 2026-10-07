@@ -33,7 +33,7 @@ export const OrderCardUI = memo(function OrderCardUI({
       <h4 className={`pt-6 text text_type_main-medium ${styles.order_name}`}>
         {orderInfo.name}
       </h4>
-      {location.pathname === '/profile/orders' && (
+      {locationState.background.pathname === '/profile/orders' && (
         <OrderStatus status={orderInfo.status} />
       )}
       <div className={`pt-6 ${styles.order_content}`}>

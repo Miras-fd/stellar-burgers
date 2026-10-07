@@ -1,25 +1,39 @@
 import { ProfileUI } from '@ui-pages';
 import { type SyntheticEvent, useEffect, useState } from 'react';
 
+import {
+  clearUserError,
+  selectUser,
+  selectUserError,
+  updateUser,
+} from '@services/slices/user-slice';
+import { useDispatch, useSelector } from '@services/store';
+
+import type { TRegisterData } from '@api';
+
 export const Profile = (): React.JSX.Element => {
-  /** TODO: Взять переменную из стора */
-  const user = {
-    name: '',
-    email: '',
-  };
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const updateUserError = useSelector(selectUserError);
 
   const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+    name: user?.name ?? '',
+    email: user?.email ?? '',
     password: '',
   });
 
   useEffect(() => {
-    setFormValue((prevState) => ({
-      ...prevState,
-      name: user?.name || '',
-      email: user?.email || '',
-    }));
+    dispatch(clearUserError());
+  }, [dispatch]);
+
+  /* После сохранения в сторе появляется обновлённый пользователь: форма
+     синхронизируется с ним, и кнопки «Отмена» и «Сохранить» скрываются. */
+  useEffect(() => {
+    setFormValue({
+      name: user?.name ?? '',
+      email: user?.email ?? '',
+      password: '',
+    });
   }, [user]);
 
   const isFormChanged =
@@ -29,13 +43,24 @@ export const Profile = (): React.JSX.Element => {
 
   const handleSubmit = (e: SyntheticEvent): void => {
     e.preventDefault();
+
+    const changedUserData: Partial<TRegisterData> = {
+      name: formValue.name,
+      email: formValue.email,
+    };
+
+    if (formValue.password) {
+      changedUserData.password = formValue.password;
+    }
+
+    void dispatch(updateUser(changedUserData));
   };
 
   const handleCancel = (e: SyntheticEvent): void => {
     e.preventDefault();
     setFormValue({
-      name: user.name,
-      email: user.email,
+      name: user?.name ?? '',
+      email: user?.email ?? '',
       password: '',
     });
   };
@@ -51,6 +76,7 @@ export const Profile = (): React.JSX.Element => {
     <ProfileUI
       formValue={formValue}
       isFormChanged={isFormChanged}
+      updateUserError={updateUserError?.message}
       handleCancel={handleCancel}
       handleSubmit={handleSubmit}
       handleInputChange={handleInputChange}

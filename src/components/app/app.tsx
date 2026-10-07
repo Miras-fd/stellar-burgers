@@ -17,6 +17,7 @@ import {
   ResetPassword,
 } from '@pages';
 import { Preloader } from '@ui';
+import clsx from 'clsx';
 import { useEffect } from 'react';
 import { Routes, Route, useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -26,6 +27,7 @@ import {
   selectIngredientsError,
   selectIngredientsLoading,
 } from '@services/slices/ingredients-slice';
+import { checkUserAuth } from '@services/slices/user-slice';
 import { useDispatch, useSelector } from '@services/store';
 
 import type { AppContentProps, LocationState, ModalRouteProps } from './type';
@@ -41,7 +43,7 @@ const formatOrderNumber = (number: string): string =>
 
 const IngredientPage = (): React.JSX.Element => (
   <div className={styles.detailPageWrap}>
-    <h3 className={`${styles.detailHeader} text text_type_main-large`}>
+    <h3 className={clsx(styles.detailHeader, 'text', 'text_type_main-large')}>
       Детали ингредиента
     </h3>
     <IngredientDetails />
@@ -53,7 +55,7 @@ const OrderPage = (): React.JSX.Element => {
 
   return (
     <div className={styles.detailPageWrap}>
-      <h3 className={`${styles.detailHeader} text text_type_digits-default`}>
+      <h3 className={clsx(styles.detailHeader, 'text', 'text_type_digits-default')}>
         {formatOrderNumber(number)}
       </h3>
       <OrderInfo />
@@ -190,7 +192,7 @@ const AppContent = ({
 
   if (error) {
     return (
-      <p className={`${styles.message} text text_type_main-medium`}>
+      <p className={clsx(styles.message, 'text', 'text_type_main-medium')}>
         Не удалось загрузить ингредиенты
         {error.message ? `: ${error.message}` : '.'}
       </p>
@@ -199,7 +201,9 @@ const AppContent = ({
 
   if (!ingredients.length) {
     return (
-      <p className={`${styles.message} text text_type_main-medium`}>Нет ингредиентов</p>
+      <p className={clsx(styles.message, 'text', 'text_type_main-medium')}>
+        Нет ингредиентов
+      </p>
     );
   }
 
@@ -214,6 +218,7 @@ const App = (): React.JSX.Element => {
 
   useEffect(() => {
     void dispatch(fetchIngredients());
+    void dispatch(checkUserAuth());
   }, [dispatch]);
 
   return (
